@@ -59,6 +59,18 @@ key | action
 key | action
 ----|--------
 <kbd>&darr;</kbd>/<kbd>j</kbd>, <kbd>&uarr;</kbd>/<kbd>k</kbd> | scroll list of all plays
+<kbd>]</kbd> | cycle to next stats view
+<kbd>[</kbd> | cycle to previous stats view
+
+#### Stats Views
+During a live game, you can cycle through 4 different stat displays for the current pitcher and batter:
+
+1. **Basic** - Core stats: Pitcher (IP, Pitches, ERA) / Batter (H-AB, AVG, HR)
+2. **Advanced Batting** - Pitcher (IP, K, BB) / Batter (AVG, OBP, SLG, OPS)
+3. **Advanced Pitching** - Pitcher (W-L, ERA, WHIP, K/9) / Batter (H-AB today, RBI, SB)
+4. **Game Stats** - Today's game: Pitcher (IP, H, ER, K, BB) / Batter (H-AB, RBI, R, K, BB)
+
+The current view is indicated in the bottom right of the matchup display (e.g., `[Basic 1/4]`).
 
 ### Configuration
 
