@@ -124,12 +124,18 @@ function LiveGame()  {
         const advancedContent =
           '{bold}{cyan-fg}Advanced Stats{/}  (Press \'a\' to close)\n\n' +
           `{bold}PITCHER: ${pitcher.person.fullName} (${pitchTeam.abbreviation}){/}\n` +
-          `Season:  ERA ${formatStat(pitcher.seasonStats.pitching.era, 2)} | WHIP ${formatStat(pitcher.seasonStats.pitching.whip, 2)} | K/9 ${formatStat(pitcher.seasonStats.pitching.strikeoutsPer9Inn, 1)} | ${formatStat(pitcher.seasonStats.pitching.wins)}-${formatStat(pitcher.seasonStats.pitching.losses)}\n` +
-          `Today:   ${formatStat(pitcher.stats.pitching.inningsPitched, 1)} IP | ${formatStat(pitcher.stats.pitching.hits)} H | ${formatStat(pitcher.stats.pitching.earnedRuns)} ER | ${formatStat(pitcher.stats.pitching.strikeOuts)} K | ${formatStat(pitcher.stats.pitching.baseOnBalls)} BB | ${formatStat(pitcher.stats.pitching.pitchesThrown)} P\n\n` +
+          'Season:\n' +
+          `  | ERA  ${formatStat(pitcher.seasonStats.pitching.era, 2).padStart(5)} | WHIP ${formatStat(pitcher.seasonStats.pitching.whip, 2).padStart(5)} | K/9  ${formatStat(pitcher.seasonStats.pitching.strikeoutsPer9Inn, 1).padStart(5)} | W-L  ${(formatStat(pitcher.seasonStats.pitching.wins) + '-' + formatStat(pitcher.seasonStats.pitching.losses)).padStart(5)} |\n` +
+          'Today:\n' +
+          `  | IP   ${formatStat(pitcher.stats.pitching.inningsPitched, 1).padStart(5)} | H    ${formatStat(pitcher.stats.pitching.hits).toString().padStart(5)} | ER   ${formatStat(pitcher.stats.pitching.earnedRuns).toString().padStart(5)} |\n` +
+          `  | K    ${formatStat(pitcher.stats.pitching.strikeOuts).toString().padStart(5)} | BB   ${formatStat(pitcher.stats.pitching.baseOnBalls).toString().padStart(5)} | P    ${formatStat(pitcher.stats.pitching.pitchesThrown).toString().padStart(5)} |\n\n` +
           `{bold}BATTER: ${batter.person.fullName} (${batTeam.abbreviation}){/}\n` +
-          `Season:  AVG ${formatStat(batter.seasonStats.batting.avg, 3)} | OBP ${formatStat(batter.seasonStats.batting.obp, 3)} | SLG ${formatStat(batter.seasonStats.batting.slg, 3)} | OPS ${formatStat(batter.seasonStats.batting.ops, 3)}\n` +
-          `         ${formatStat(batter.seasonStats.batting.homeRuns)} HR | ${formatStat(batter.seasonStats.batting.rbi)} RBI | ${formatStat(batter.seasonStats.batting.stolenBases)} SB\n` +
-          `Today:   ${formatStat(batter.stats.batting.hits)}-${formatStat(batter.stats.batting.atBats)} | ${formatStat(batter.stats.batting.rbi)} RBI | ${formatStat(batter.stats.batting.runs)} R | ${formatStat(batter.stats.batting.strikeOuts)} K | ${formatStat(batter.stats.batting.baseOnBalls)} BB`;
+          'Season:\n' +
+          `  | AVG  ${formatStat(batter.seasonStats.batting.avg, 3).padStart(5)} | OBP  ${formatStat(batter.seasonStats.batting.obp, 3).padStart(5)} | SLG  ${formatStat(batter.seasonStats.batting.slg, 3).padStart(5)} | OPS  ${formatStat(batter.seasonStats.batting.ops, 3).padStart(5)} |\n` +
+          `  | HR   ${formatStat(batter.seasonStats.batting.homeRuns).toString().padStart(5)} | RBI  ${formatStat(batter.seasonStats.batting.rbi).toString().padStart(5)} | SB   ${formatStat(batter.seasonStats.batting.stolenBases).toString().padStart(5)} |\n` +
+          'Today:\n' +
+          `  | H-AB ${(formatStat(batter.stats.batting.hits) + '-' + formatStat(batter.stats.batting.atBats)).padStart(5)} | RBI  ${formatStat(batter.stats.batting.rbi).toString().padStart(5)} | R    ${formatStat(batter.stats.batting.runs).toString().padStart(5)} |\n` +
+          `  | K    ${formatStat(batter.stats.batting.strikeOuts).toString().padStart(5)} | BB   ${formatStat(batter.stats.batting.baseOnBalls).toString().padStart(5)} |\n`;
 
         return (
           <box
