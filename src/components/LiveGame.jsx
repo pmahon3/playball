@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
 import Count from './Count.js';
@@ -10,13 +10,21 @@ import AllPlays from './AllPlays.js';
 import InningDisplay from './InningDisplay.js';
 
 import { get } from '../config.js';
-import { selectGameStatus, selectLineScore, selectTeams } from '../features/games.js';
+import { selectGameStatus, selectLineScore, selectTeams, selectCurrentPlay, selectBoxscore } from '../features/games.js';
 import { resetTitle, setTitle } from '../screen.js';
+import useKey from '../hooks/useKey.js';
 
 function LiveGame()  {
   const gameStatus = useSelector(selectGameStatus);
   const linescore = useSelector(selectLineScore);
   const teams = useSelector(selectTeams);
+  const currentPlay = useSelector(selectCurrentPlay);
+  const boxscore = useSelector(selectBoxscore);
+  const [showAdvancedStats, setShowAdvancedStats] = useState(false);
+
+  const toggleAdvancedStats = useCallback(() => {
+    setShowAdvancedStats(prev => !prev);
+  }, []);
 
   useEffect(() => {
     if (get('title')) {
@@ -47,6 +55,36 @@ function LiveGame()  {
       };
     }
   }, [gameStatus, get, linescore, resetTitle, setTitle, teams]);
+
+  useKey('a', toggleAdvancedStats, { key: 'a', label: showAdvancedStats ? 'Close Stats' : 'Advanced Stats' });
+
+  // Helper to get player stats from boxscore
+  const getPlayerStats = (id) => {
+    const key = 'ID' + id;
+    const homePlayers = boxscore.home.players;
+    if (homePlayers[key]) {
+      return {
+        team: teams.home,
+        player: homePlayers[key],
+      };
+    }
+    return {
+      team: teams.away,
+      player: boxscore.away.players[key],
+    };
+  };
+
+  const formatStat = (value, decimals = 0) => {
+    if (value === undefined || value === null || value === '') return '-';
+    if (decimals > 0) {
+      const num = Number(value);
+      return isNaN(num) ? '-' : num.toFixed(decimals);
+    }
+    return value;
+  };
+
+  const pitcherId = currentPlay?.matchup?.pitcher?.id;
+  const batterId = currentPlay?.matchup?.batter?.id;
 
   return (
     <element>
@@ -79,6 +117,36 @@ function LiveGame()  {
           <AllPlays />
         </element>
       </element>
+      {showAdvancedStats && pitcherId && batterId && (() => {
+        const {team: pitchTeam, player: pitcher} = getPlayerStats(pitcherId);
+        const {team: batTeam, player: batter} = getPlayerStats(batterId);
+
+        const advancedContent =
+          '{bold}{cyan-fg}Advanced Stats{/}  (Press \'a\' to close)\n\n' +
+          `{bold}PITCHER: ${pitcher.person.fullName} (${pitchTeam.abbreviation}){/}\n` +
+          `Season:  ERA ${formatStat(pitcher.seasonStats.pitching.era, 2)} | WHIP ${formatStat(pitcher.seasonStats.pitching.whip, 2)} | K/9 ${formatStat(pitcher.seasonStats.pitching.strikeoutsPer9Inn, 1)} | ${formatStat(pitcher.seasonStats.pitching.wins)}-${formatStat(pitcher.seasonStats.pitching.losses)}\n` +
+          `Today:   ${formatStat(pitcher.stats.pitching.inningsPitched, 1)} IP | ${formatStat(pitcher.stats.pitching.hits)} H | ${formatStat(pitcher.stats.pitching.earnedRuns)} ER | ${formatStat(pitcher.stats.pitching.strikeOuts)} K | ${formatStat(pitcher.stats.pitching.baseOnBalls)} BB | ${formatStat(pitcher.stats.pitching.pitchesThrown)} P\n\n` +
+          `{bold}BATTER: ${batter.person.fullName} (${batTeam.abbreviation}){/}\n` +
+          `Season:  AVG ${formatStat(batter.seasonStats.batting.avg, 3)} | OBP ${formatStat(batter.seasonStats.batting.obp, 3)} | SLG ${formatStat(batter.seasonStats.batting.slg, 3)} | OPS ${formatStat(batter.seasonStats.batting.ops, 3)}\n` +
+          `         ${formatStat(batter.seasonStats.batting.homeRuns)} HR | ${formatStat(batter.seasonStats.batting.rbi)} RBI | ${formatStat(batter.seasonStats.batting.stolenBases)} SB\n` +
+          `Today:   ${formatStat(batter.stats.batting.hits)}-${formatStat(batter.stats.batting.atBats)} | ${formatStat(batter.stats.batting.rbi)} RBI | ${formatStat(batter.stats.batting.runs)} R | ${formatStat(batter.stats.batting.strikeOuts)} K | ${formatStat(batter.stats.batting.baseOnBalls)} BB`;
+
+        return (
+          <box
+            top="center"
+            left="center"
+            width="80%"
+            height="60%"
+            tags
+            border={{type: 'line'}}
+            style={{
+              border: {fg: 'cyan'},
+              focus: {border: {fg: 'cyan'}}
+            }}
+            content={advancedContent}
+          />
+        );
+      })()}
     </element>
   );
 }
