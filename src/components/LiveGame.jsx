@@ -86,6 +86,33 @@ function LiveGame()  {
   const pitcherId = currentPlay?.matchup?.pitcher?.id;
   const batterId = currentPlay?.matchup?.batter?.id;
 
+  // Helper to build batting order for a team
+  const getBattingOrder = (teamSide) => {
+    if (!boxscore || !boxscore[teamSide]) return [];
+    const teamData = boxscore[teamSide];
+    const players = teamData.players;
+    const battingOrder = teamData.battingOrder || [];
+
+    return battingOrder.map(playerId => {
+      const playerKey = 'ID' + playerId;
+      const player = players[playerKey];
+      if (!player) return null;
+
+      const stats = player.stats?.batting || {};
+      const seasonStats = player.seasonStats?.batting || {};
+
+      return {
+        id: player.person.id,
+        name: player.person.fullName,
+        position: player.position?.abbreviation || '',
+        battingOrder: player.battingOrder || '',
+        ab: stats.atBats || 0,
+        h: stats.hits || 0,
+        avg: seasonStats.avg || '.000',
+      };
+    }).filter(Boolean);
+  };
+
   return (
     <element>
       <element top={0} left={1} width='100%-1' height={3}>
@@ -121,8 +148,28 @@ function LiveGame()  {
         const {team: pitchTeam, player: pitcher} = getPlayerStats(pitcherId);
         const {team: batTeam, player: batter} = getPlayerStats(batterId);
 
-        const advancedContent =
-          '{bold}{cyan-fg}Advanced Stats{/}  (Press \'a\' to close)\n\n' +
+        // Get batting orders
+        const awayLineup = getBattingOrder('away');
+        const homeLineup = getBattingOrder('home');
+
+        const formatLineupCompact = (lineup, isCurrentBatting) => {
+          return lineup.map((player, idx) => {
+            const isCurrentBatter = isCurrentBatting && player.id === batterId;
+            const prefix = isCurrentBatter ? '{green-fg}* ' : '  ';
+            const suffix = isCurrentBatter ? '{/}' : '';
+            const orderNum = Math.floor(parseInt(player.battingOrder) / 100) || (idx + 1);
+            // Shorten name to 20 chars for compact display
+            const shortName = player.name.length > 20 ? player.name.substring(0, 18) + '..' : player.name;
+            return `${prefix}${orderNum}. ${shortName.padEnd(20)} ${player.h}-${player.ab}${suffix}`;
+          }).join('\n');
+        };
+
+        const isTopInning = linescore.isTopInning;
+        const awayBatting = isTopInning;
+        const homeBatting = !isTopInning;
+
+        const statsContent =
+          '{bold}{cyan-fg}Advanced Stats & Lineup{/}  (Press \'a\' to close)\n\n' +
           `{bold}PITCHER: ${pitcher.person.fullName} (${pitchTeam.abbreviation}){/}\n` +
           'Season:\n' +
           `  | ERA  ${formatStat(pitcher.seasonStats.pitching.era, 2).padStart(5)} | WHIP ${formatStat(pitcher.seasonStats.pitching.whip, 2).padStart(5)} | K/9  ${formatStat(pitcher.seasonStats.pitching.strikeoutsPer9Inn, 1).padStart(5)} | W-L  ${(formatStat(pitcher.seasonStats.pitching.wins) + '-' + formatStat(pitcher.seasonStats.pitching.losses)).padStart(5)} |\n` +
@@ -132,10 +179,17 @@ function LiveGame()  {
           `{bold}BATTER: ${batter.person.fullName} (${batTeam.abbreviation}){/}\n` +
           'Season:\n' +
           `  | AVG  ${formatStat(batter.seasonStats.batting.avg, 3).padStart(5)} | OBP  ${formatStat(batter.seasonStats.batting.obp, 3).padStart(5)} | SLG  ${formatStat(batter.seasonStats.batting.slg, 3).padStart(5)} | OPS  ${formatStat(batter.seasonStats.batting.ops, 3).padStart(5)} |\n` +
-          `  | HR   ${formatStat(batter.seasonStats.batting.homeRuns).toString().padStart(5)} | RBI  ${formatStat(batter.seasonStats.batting.rbi).toString().padStart(5)} | SB   ${formatStat(batter.seasonStats.batting.stolenBases).toString().padStart(5)} |\n` +
+          `  | HR   ${formatStat(batter.seasonStats.batting.homeRuns).toString().padStart(5)} | RBI  ${formatStat(batter.seasonStats.batting.rbi).toString().padStart(5)} | SB   ${formatStat(batter.seasonStats.batting.stolenBases).toString().padStart(5)} | AB   ${formatStat(batter.seasonStats.batting.atBats).toString().padStart(5)} |\n` +
           'Today:\n' +
           `  | H-AB ${(formatStat(batter.stats.batting.hits) + '-' + formatStat(batter.stats.batting.atBats)).padStart(5)} | RBI  ${formatStat(batter.stats.batting.rbi).toString().padStart(5)} | R    ${formatStat(batter.stats.batting.runs).toString().padStart(5)} |\n` +
           `  | K    ${formatStat(batter.stats.batting.strikeOuts).toString().padStart(5)} | BB   ${formatStat(batter.stats.batting.baseOnBalls).toString().padStart(5)} |\n`;
+
+        const lineupContent =
+          '\n\n' +
+          `{bold}${teams.away.abbreviation}${awayBatting ? ' *' : ''}{/}\n` +
+          formatLineupCompact(awayLineup, awayBatting) + '\n' +
+          `{bold}${teams.home.abbreviation}${homeBatting ? ' *' : ''}{/}\n` +
+          formatLineupCompact(homeLineup, homeBatting);
 
         return (
           <box
@@ -149,8 +203,22 @@ function LiveGame()  {
               border: {fg: 'cyan'},
               focus: {border: {fg: 'cyan'}}
             }}
-            content={advancedContent}
-          />
+          >
+            <text
+              top={1}
+              left={1}
+              width="55%-3"
+              tags
+              content={statsContent}
+            />
+            <text
+              top={1}
+              left="55%"
+              width="45%-2"
+              tags
+              content={lineupContent}
+            />
+          </box>
         );
       })()}
     </element>
