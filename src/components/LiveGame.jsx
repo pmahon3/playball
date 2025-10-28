@@ -168,15 +168,21 @@ function LiveGame()  {
         const awayBatting = isTopInning;
         const homeBatting = !isTopInning;
 
+        const pitcherName = `${pitcher.person.fullName} (${pitchTeam.abbreviation})`;
+        const batterName = `${batter.person.fullName} (${batTeam.abbreviation})`;
+
+        // The stats lines are about 63 characters wide (up to the final |)
+        const statsLineWidth = 63;
+
         const statsContent =
           '{bold}{cyan-fg}Advanced Stats & Lineup{/}  (Press \'a\' to close)\n\n' +
-          `{bold}PITCHER: ${pitcher.person.fullName} (${pitchTeam.abbreviation}){/}\n` +
+          `{bold}PITCHER: ${pitcherName.padStart(statsLineWidth - 17)}{/}\n` +
           'Season:\n' +
           `  | ERA  ${formatStat(pitcher.seasonStats.pitching.era, 2).padStart(5)} | WHIP ${formatStat(pitcher.seasonStats.pitching.whip, 2).padStart(5)} | K/9  ${formatStat(pitcher.seasonStats.pitching.strikeoutsPer9Inn, 1).padStart(5)} | W-L  ${(formatStat(pitcher.seasonStats.pitching.wins) + '-' + formatStat(pitcher.seasonStats.pitching.losses)).padStart(5)} |\n` +
           'Today:\n' +
           `  | IP   ${formatStat(pitcher.stats.pitching.inningsPitched, 1).padStart(5)} | H    ${formatStat(pitcher.stats.pitching.hits).toString().padStart(5)} | ER   ${formatStat(pitcher.stats.pitching.earnedRuns).toString().padStart(5)} |\n` +
-          `  | K    ${formatStat(pitcher.stats.pitching.strikeOuts).toString().padStart(5)} | BB   ${formatStat(pitcher.stats.pitching.baseOnBalls).toString().padStart(5)} | P    ${formatStat(pitcher.stats.pitching.pitchesThrown).toString().padStart(5)} |\n\n` +
-          `{bold}BATTER: ${batter.person.fullName} (${batTeam.abbreviation}){/}\n` +
+          `  | K    ${formatStat(pitcher.stats.pitching.strikeOuts).toString().padStart(5)} | BB   ${formatStat(pitcher.stats.pitching.baseOnBalls).toString().padStart(5)} | P    ${formatStat(pitcher.stats.pitching.pitchesThrown).toString().padStart(5)} |\n\n\n\n\n\n` +
+          `{bold}BATTER: ${batterName.padStart(statsLineWidth - 16)}{/}\n` +
           'Season:\n' +
           `  | AVG  ${formatStat(batter.seasonStats.batting.avg, 3).padStart(5)} | OBP  ${formatStat(batter.seasonStats.batting.obp, 3).padStart(5)} | SLG  ${formatStat(batter.seasonStats.batting.slg, 3).padStart(5)} | OPS  ${formatStat(batter.seasonStats.batting.ops, 3).padStart(5)} |\n` +
           `  | HR   ${formatStat(batter.seasonStats.batting.homeRuns).toString().padStart(5)} | RBI  ${formatStat(batter.seasonStats.batting.rbi).toString().padStart(5)} | SB   ${formatStat(batter.seasonStats.batting.stolenBases).toString().padStart(5)} | AB   ${formatStat(batter.seasonStats.batting.atBats).toString().padStart(5)} |\n` +
@@ -185,9 +191,8 @@ function LiveGame()  {
           `  | K    ${formatStat(batter.stats.batting.strikeOuts).toString().padStart(5)} | BB   ${formatStat(batter.stats.batting.baseOnBalls).toString().padStart(5)} |\n`;
 
         const lineupContent =
-          '\n\n' +
-          `{bold}${teams.away.abbreviation}${awayBatting ? ' *' : ''}{/}\n` +
-          formatLineupCompact(awayLineup, awayBatting) + '\n' +
+          `\n\n{bold}${teams.away.abbreviation}${awayBatting ? ' *' : ''}{/}\n` +
+          formatLineupCompact(awayLineup, awayBatting) + '\n\n' +
           `{bold}${teams.home.abbreviation}${homeBatting ? ' *' : ''}{/}\n` +
           formatLineupCompact(homeLineup, homeBatting);
 

@@ -1,5 +1,7 @@
 # IDE stuff
 .vscode/
+.idea/
+*.iml
 
 # generated stuff
 dist/
