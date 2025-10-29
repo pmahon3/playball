@@ -59,18 +59,28 @@ key | action
 key | action
 ----|--------
 <kbd>&darr;</kbd>/<kbd>j</kbd>, <kbd>&uarr;</kbd>/<kbd>k</kbd> | scroll list of all plays
-<kbd>]</kbd> | cycle to next stats view
-<kbd>[</kbd> | cycle to previous stats view
+<kbd>a</kbd> | toggle advanced stats overlay
+<kbd>r</kbd> | start replay (finished games only)
 
-#### Stats Views
-During a live game, you can cycle through 4 different stat displays for the current pitcher and batter:
+During a live game, basic stats for the current pitcher and batter are always displayed:
+- **Pitcher**: IP, Pitches, ERA
+- **Batter**: H-AB, AVG, HR
 
-1. **Basic** - Core stats: Pitcher (IP, Pitches, ERA) / Batter (H-AB, AVG, HR)
-2. **Advanced Batting** - Pitcher (IP, K, BB) / Batter (AVG, OBP, SLG, OPS)
-3. **Advanced Pitching** - Pitcher (W-L, ERA, WHIP, K/9) / Batter (H-AB today, RBI, SB)
-4. **Game Stats** - Today's game: Pitcher (IP, H, ER, K, BB) / Batter (H-AB, RBI, R, K, BB)
+Press <kbd>a</kbd> to open an overlay with comprehensive stats for both the pitcher and batter, plus batting orders:
+- **Season Stats**: ERA, WHIP, K/9, W-L (pitcher) / AVG, OBP, SLG, OPS, HR, RBI, SB, AB (batter)
+- **Today's Game**: IP, H, ER, K, BB, P (pitcher) / H-AB, RBI, R, K, BB (batter)
+- **Batting Orders**: Full lineup for both teams with today's H-AB stats, highlighting the current batter
 
-The current view is indicated in the bottom right of the matchup display (e.g., `[Basic 1/4]`).
+#### Replay View (Finished Games)
+For finished games, press <kbd>r</kbd> to replay the game play-by-play:
+
+key | action
+----|--------
+<kbd>Space</kbd> | play/pause replay
+<kbd>f</kbd> | cycle replay speed (1x, 2x, 4x)
+<kbd>r</kbd> | exit replay and return to final score
+
+The replay automatically steps through each play of the game at your chosen speed, showing the game state as it progressed. The status bar shows current progress (e.g., "Play 45/156 (29%)").
 
 ### Configuration
 
